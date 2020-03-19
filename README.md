@@ -165,3 +165,29 @@ F S UID          PID    PPID     LWP  C NLWP PRI  NI ADDR SZ WCHAN  STIME TTY   
 1 S davalen+   28426    4725   28434  0    9  80   0 - 533200 -     21:37 pts/1    00:00:00 ./main.o sudoku
 children finished
 ```
+
+1. ¿Qué es una race condition y por qué hay que evitarlas?
+2. ¿Cuál es la relación, en Linux, entre pthreads y clone()? ¿Hay diferencia al crear threads con
+    uno o con otro? ¿Qué es más recomendable?
+3. ¿Dónde, en su programa, hay paralelización de tareas, y dónde de datos?
+4. Al agregar los #pragmas a los ciclos for, ¿cuántos LWP’s hay abiertos antes de terminar el
+    main()y cuántos durante la revisión de columnas? ¿Cuántos user threads deben haber abiertos
+    en cada caso, entonces? Hint: recuerde el modelo de multithreading que usan Linux y Windows.
+5. Al limitar el número de threads en main() a uno, ¿cuántos LWP’s hay abiertos durante la revisión
+    de columnas? Compare esto con el número de LWP’s abiertos antes de limitar el número de
+    threads en main(). ¿Cuántos threads (en general) crea OpenMP por defecto?
+6. Observe cuáles LWP’s están abiertos durante la revisión de columnas según ps. ¿Qué significa la
+    primera columna de resultados de este comando? ¿Cuál es el LWP que está inactivo y por qué
+    está inactivo? Hint: consulte las páginas del manual sobre ps.
+7. Compare los resultados de ps en la pregunta anterior con los que son desplegados por la función
+    de revisión de columnas per se. ¿Qué es un thread team en OpenMP y cuál es el master thread
+    en este caso? ¿Por qué parece haber un thread “corriendo”, pero que no está haciendo nada?
+    ¿Qué significa el término busy-wait? ¿Cómo maneja OpenMP su thread pool?
+8. Luego de agregar por primera vez la cláusula schedule(dynamic) y ejecutar su programa
+    repetidas veces, ¿cuál es el máximo número de threads trabajando según la función de revisión
+    de columnas? Al comparar este número con la cantidad de LWP’s que se creaban antes de agregar
+    schedule(), ¿qué deduce sobre la distribución de trabajo que OpenMP hace por defecto?
+9. Luego de agregar las llamadas omp_set_num_threads() a cada función donde se usa
+    OpenMP y probar su programa, antes de agregar omp_set_nested(true), ¿hay más o
+    menos concurrencia en su programa? ¿Es esto sinónimo de un mejor desempeño? Explique.
+10. ¿Cuál es el efecto de agregar omp_set_nested(true)? Explique.
