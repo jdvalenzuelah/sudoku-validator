@@ -166,28 +166,34 @@ F S UID          PID    PPID     LWP  C NLWP PRI  NI ADDR SZ WCHAN  STIME TTY   
 children finished
 ```
 
-1. ¿Qué es una race condition y por qué hay que evitarlas?
-2. ¿Cuál es la relación, en Linux, entre pthreads y clone()? ¿Hay diferencia al crear threads con
-    uno o con otro? ¿Qué es más recomendable?
-3. ¿Dónde, en su programa, hay paralelización de tareas, y dónde de datos?
-4. Al agregar los #pragmas a los ciclos for, ¿cuántos LWP’s hay abiertos antes de terminar el
-    main()y cuántos durante la revisión de columnas? ¿Cuántos user threads deben haber abiertos
-    en cada caso, entonces? Hint: recuerde el modelo de multithreading que usan Linux y Windows.
-5. Al limitar el número de threads en main() a uno, ¿cuántos LWP’s hay abiertos durante la revisión
-    de columnas? Compare esto con el número de LWP’s abiertos antes de limitar el número de
-    threads en main(). ¿Cuántos threads (en general) crea OpenMP por defecto?
-6. Observe cuáles LWP’s están abiertos durante la revisión de columnas según ps. ¿Qué significa la
-    primera columna de resultados de este comando? ¿Cuál es el LWP que está inactivo y por qué
-    está inactivo? Hint: consulte las páginas del manual sobre ps.
-7. Compare los resultados de ps en la pregunta anterior con los que son desplegados por la función
-    de revisión de columnas per se. ¿Qué es un thread team en OpenMP y cuál es el master thread
-    en este caso? ¿Por qué parece haber un thread “corriendo”, pero que no está haciendo nada?
-    ¿Qué significa el término busy-wait? ¿Cómo maneja OpenMP su thread pool?
-8. Luego de agregar por primera vez la cláusula schedule(dynamic) y ejecutar su programa
-    repetidas veces, ¿cuál es el máximo número de threads trabajando según la función de revisión
-    de columnas? Al comparar este número con la cantidad de LWP’s que se creaban antes de agregar
-    schedule(), ¿qué deduce sobre la distribución de trabajo que OpenMP hace por defecto?
-9. Luego de agregar las llamadas omp_set_num_threads() a cada función donde se usa
-    OpenMP y probar su programa, antes de agregar omp_set_nested(true), ¿hay más o
-    menos concurrencia en su programa? ¿Es esto sinónimo de un mejor desempeño? Explique.
-10. ¿Cuál es el efecto de agregar omp_set_nested(true)? Explique.
+- ¿Qué es una race condition y por qué hay que evitarlas?
+
+    Una `race condition` es cuando dos o mas threads acceden recursos compartidos y tratan de modificarla al mismo tiempo. Para evitar que suceda se colocan `locks` en los recursos compartidos, para asegurarse que solamente un thread pueda accederlo al mismo tiempo. ([fuente](https://stackoverflow.com/questions/34510/what-is-a-race-condition))
+
+- ¿Cuál es la relación, en Linux, entre `pthreads` y `clone()`? ¿Hay diferencia al crear threads con uno o con otro? ¿Qué es más recomendable?
+
+    En la creacion de un `pthread` con la funcion `pthread_create` se utiliza la llamada de sistema `clone`. El objetivo de ambas funciones es la misma (aunque clone puede llegar a ser mas precisa). `pthreads` son utilizados mas comunmente debido a la portabilidad, que `clone` no provee.
+
+- ¿Dónde, en su programa, hay paralelización de tareas, y dónde de datos?
+
+    La paralelización de tareas ocurre cundo se paralelizan la verificacion de columnas, y de filas. Paralelización de datos cuando se verifican las columnas/filas que tengan todos los numeros del 1 al 9.
+
+- Al agregar los `#pragmas` a los ciclos `for`, ¿cuántos `LWP`’s hay abiertos antes de terminar el `main()` y cuántos durante la revisión de columnas? ¿Cuántos user threads deben haber abiertos en cada caso, entonces? Hint: recuerde el modelo de multithreading que usan Linux y Windows.
+
+    Antes de terminar el `main` habia habia solamente 1, despues de las revisiones habian 4.
+
+- Al limitar el número de threads en `main()` a uno, ¿cuántos `LWP`’s hay abiertos durante la revisión de columnas? Compare esto con el número de LWP’s abiertos antes de limitar el número de threads en main(). ¿Cuántos threads (en general) crea OpenMP por defecto?
+
+    Si se limita el numero threads este pasa a ser solamente de uno. Antes de eso eran 4 threads, este es el numero optimo de threads creados por *OpeenMP*. 
+
+- Luego de agregar por primera vez la cláusula schedule(dynamic) y ejecutar su programa repetidas veces, ¿cuál es el máximo número de threads trabajando según la función de revisión de columnas? Al comparar este número con la cantidad de LWP’s que se creaban antes de agregar schedule(), ¿qué deduce sobre la distribución de trabajo que OpenMP hace por defecto?
+
+    Se utilizan solamente 3 threads, de los 4 que se utilizaban antes.
+
+- Luego de agregar las llamadas omp_set_num_threads() a cada función donde se usa OpenMP y probar su programa, antes de agregar omp_set_nested(true), ¿hay más o menos concurrencia en su programa? ¿Es esto sinónimo de un mejor desempeño? Explique.
+
+    Si el numero de threads excede el numero de procesadores que se tiene la concurrencia aumenta, ya que los threads no pueden asignarse a un procesador.
+
+- ¿Cuál es el efecto de agregar omp_set_nested(true)? Explique.
+
+    Los threads ahora asignan tareas a threads `slave` que realizan tareasa atomicas.
